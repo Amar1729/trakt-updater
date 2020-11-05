@@ -9,6 +9,7 @@ from pprint import pprint
 import trakt
 import trakt.core
 import trakt.movies
+import trakt.tv
 
 
 def get_config():
@@ -30,23 +31,57 @@ def update_config(cfg, trakt):
         cfg.write(cfgfile)
 
 
-def add_movie_interactive(movie_title: str):
+def add_media_interactive(title: str, media_type: str):
     """
-    1) Search trakt.tv for a movie with movie_title.
+    1) Search trakt.tv for a movie/tv with title.
     2) interactively ask user for selection
     3) update user's history with selection
     """
-    results = trakt.movies.search(movie_title)
+    if media_type == "show":
+        cleaned = " - ".join(title.split(" - ")[1:]).strip()
+    else:
+        cleaned = title
+    results = trakt.movies.search(cleaned, search_type=media_type)
 
-    print(f"Choose the matching result for '{movie_title}':")
-    for idx, movie in enumerate(results):
-        print(f"{idx}: ({movie.year})\t{movie.title}")
+    print(f"Choose the matching result for '{title}':")
+    for idx, media in enumerate(results):
+        print(f"{idx}: ({media.year})\t{media.title}")
 
     try:
-        choice = int(input())
+        _choice = input()
+        choice = int(_choice)
     except ValueError:
-        print("Skipping this movie (input must be integer)")
-        return
+        if media_type == "show":
+            print("Assuming manual input, searching...")
+            cleaned = _choice.strip()
+            results = trakt.movies.search(cleaned, search_type=media_type)
+            print(f"Choose the matching result for '{title}':")
+            for idx, media in enumerate(results):
+                print(f"{idx}: ({media.year})\t{media.title}")
+
+            try:
+                choice = int(input())
+            except ValueError:
+                print("Skipping this media (input must be integer)")
+                return
+        else:
+            print("Skipping this media (input must be integer)")
+            return
+
+    if media_type == "show":
+        print("Choose the appropriate season:")
+        for idx, season in enumerate(results[choice].seasons):
+            print(f"{idx}: ({season.first_aired})\t{season.title}")
+
+        try:
+            season_choice = int(input())
+        except ValueError:
+            print("Skipping this media (input must be integer)")
+            return
+
+        media = results[choice].seasons[season_choice].episodes
+    else:
+        media = results[choice]
 
     # print("Enter the date (DD/MM/YY) you watched it (default: today): ")
     print("Enter the date (<month abbreviation> DD YY) you watched it (default: today): ")
@@ -60,39 +95,29 @@ def add_movie_interactive(movie_title: str):
             date_obj = datetime.datetime.strptime(date_str.strip(), "%b %d %y")
         except ValueError as e:
             print("Date does not match format: DD/MM/YY")
-            print("Skipping this movie")
+            print("Skipping this media")
             print(e)
             return
 
+    # python trakt is doing non-timezone aware datetimes
     date_obj = date_obj + datetime.timedelta(hours=5)
 
-    movie = results[choice]
-    trakt.sync.add_to_history(movie, watched_at=date_obj)
+    if media_type == "show" and isinstance(media, list):
+        for episode in tqdm.tqdm(media):
+            assert isinstance(episode, trakt.tv.TVEpisode)
+            trakt.sync.add_to_history(episode, watched_at=date_obj)
+
+    elif isinstance(media, trakt.movies.Movie):
+        trakt.sync.add_to_history(media, watched_at=date_obj)
 
 
-def add_tv_interactive(tv_title: str):
-    """
-    Similar to process for add_movies_to_history()
-    """
-    results = trakt.tv.search(tv_title)
+def add_media_to_history(media_type):
+    """ Add all media from {media_type}.txt to user's trakt.tv account """
+    with open(f"{media_type}.txt") as f:
+        medias = f.readlines()
 
-
-def add_movies_to_history():
-    """ Add all movies from movies.txt to user's trakt.tv account """
-    with open("movies.txt") as f:
-        movies = f.readlines()
-
-    for movie in movies:
-        add_movie_interactive(movie.strip())
-
-
-def add_tvs_to_history():
-    """ Add all tv shows from tv.txt to user's trakt.tv account """
-    with open("tv.txt") as f:
-        tvs = f.readlines()
-
-    for tv in tvs:
-        add_tv_interactive(tv.strip())
+    for media in medias:
+        add_media_interactive(media.strip(), media_type)
 
 
 def main():
@@ -110,8 +135,8 @@ def main():
 
         update_config(cfg, trakt)
 
-    # add_movies_to_history()
-    add_tvs_to_history()
+    media_type = "show"  # or "movie"
+    add_media_to_history(media_type)
 
 
 if __name__ == "__main__":
