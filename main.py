@@ -1,5 +1,31 @@
 #! /usr/bin/env python3
 
+"""
+Update your trakt movie or tv watchlist.
+Searches for movies on trakt from ./movies.txt (one movie name per line)
+or tv shows from ./show.txt (expects a line format like:
+SXX - TV show name
+)
+
+(The SXX season specifier is helpful for you to choose the correct
+season when there are multiple seasons on trakt)
+
+Expects config.ini in the same directory of the folowing format:
+
+---- config.ini
+[user]
+username = your-usename
+
+[app]
+id = client-id-from-trakt-app
+sec = client-secret-from-trakt-app
+token = optional
+----
+
+If you do not have a token yet, this script will generate one and update
+config.ini the first time you run it.
+"""
+
 import configparser
 import datetime
 
