@@ -2,6 +2,9 @@
 
 import configparser
 import datetime
+
+# watch out for rate limits!
+# https://trakt.docs.apiary.io/#introduction/rate-limiting
 import time
 
 from pprint import pprint
