@@ -2,6 +2,7 @@
 
 import configparser
 import datetime
+import time
 
 from pprint import pprint
 
@@ -10,6 +11,7 @@ import trakt
 import trakt.core
 import trakt.movies
 import trakt.tv
+import tqdm
 
 
 def get_config():
@@ -106,6 +108,9 @@ def add_media_interactive(title: str, media_type: str):
         for episode in tqdm.tqdm(media):
             assert isinstance(episode, trakt.tv.TVEpisode)
             trakt.sync.add_to_history(episode, watched_at=date_obj)
+
+            # rate limit: 2 POST calls every 1 sec
+            time.sleep(1)
 
     elif isinstance(media, trakt.movies.Movie):
         trakt.sync.add_to_history(media, watched_at=date_obj)
