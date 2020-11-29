@@ -44,6 +44,10 @@ import trakt.tv
 import tqdm
 
 
+# use a manual offset, since trakt module incorrectly uses utc time instead of local time
+OFFSET = time.timezone
+
+
 def get_config():
     cfg = configparser.ConfigParser()
     cfg.read("config.ini")
@@ -118,7 +122,7 @@ def date_chooser(media, media_type) -> Optional[datetime.datetime]:
             return None
 
     # python trakt is doing non-timezone aware datetimes
-    date_obj = date_obj + datetime.timedelta(hours=5)
+    date_obj = date_obj + datetime.timedelta(seconds=OFFSET)
 
     return date_obj
 
