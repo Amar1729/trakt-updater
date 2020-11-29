@@ -135,12 +135,16 @@ def add_media_interactive(title: str, media_type: str):
         cleaned = title
     results = trakt.movies.search(cleaned, search_type=media_type)
 
-    print(f"Choose the matching result for '{title}':")
+    print(f"Choose the matching result for '{title}' (or -1 to skip):")
     for idx, media in enumerate(results):
         print(f"{idx}: ({media.year})\t{media.title}")
 
     try:
         _choice = input()
+
+        if _choice.strip() == "-1":
+            return
+
         choice = int(_choice)
     except ValueError:
         if media_type == "show":
