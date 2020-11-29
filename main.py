@@ -34,6 +34,7 @@ import datetime
 import time
 
 from pprint import pprint
+from typing import Optional
 
 # third-party
 import trakt
@@ -60,6 +61,50 @@ def update_config(cfg, trakt):
 
     with open("config.ini", "w") as cfgfile:
         cfg.write(cfgfile)
+
+
+def movie_releases(media: trakt.movies.Movie) -> str:
+    return "\n".join([
+        f"{c+1} ({m.release_type}): {m.release_date}"
+        for c, m in enumerate(media.get_releases())
+    ])
+
+
+def date_chooser(media, media_type) -> Optional[datetime.datetime]:
+    if media_type == "movie":
+        print("Releases:")
+        print(movie_releases(media))
+
+    # print("Enter the date (DD/MM/YY) you watched it (default: today): ")
+    print("Enter the date (<month abbreviation> DD YY) you watched it.")
+    print("Or, 0 for today, or a whole number matching its release date, or -1 to skip.")
+    date_str = input().strip()
+
+    try:
+        idx = int(date_str)
+
+        if idx == 0:
+            date_obj = datetime.datetime.now()
+        elif idx == -1:
+            return None
+        else:
+            date_obj = datetime.datetime.strptime(
+                media.get_releases()[idx - 1].release_date, "%Y-%m-%d"
+            )
+    except ValueError:
+        try:
+            # date_obj = datetime.datetime.strptime(date_str.strip(), "%d/%m/%y")
+            date_obj = datetime.datetime.strptime(date_str.strip(), "%b %d %y")
+        except ValueError as e:
+            print("Date does not match format: DD MM YY")
+            print("Skipping this media")
+            print(e)
+            return None
+
+    # python trakt is doing non-timezone aware datetimes
+    date_obj = date_obj + datetime.timedelta(hours=5)
+
+    return date_obj
 
 
 def add_media_interactive(title: str, media_type: str):
@@ -114,24 +159,9 @@ def add_media_interactive(title: str, media_type: str):
     else:
         media = results[choice]
 
-    # print("Enter the date (DD/MM/YY) you watched it (default: today): ")
-    print("Enter the date (<month abbreviation> DD YY) you watched it (default: today): ")
-    date_str = input()
-
-    if not date_str.strip():
-        date_obj = datetime.datetime.now()
-    else:
-        try:
-            # date_obj = datetime.datetime.strptime(date_str.strip(), "%d/%m/%y")
-            date_obj = datetime.datetime.strptime(date_str.strip(), "%b %d %y")
-        except ValueError as e:
-            print("Date does not match format: DD/MM/YY")
-            print("Skipping this media")
-            print(e)
-            return
-
-    # python trakt is doing non-timezone aware datetimes
-    date_obj = date_obj + datetime.timedelta(hours=5)
+    date_obj = date_chooser(media, media_type)
+    if not date_obj:
+        return
 
     if media_type == "show" and isinstance(media, list):
         for episode in tqdm.tqdm(media):
