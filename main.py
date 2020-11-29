@@ -213,7 +213,8 @@ def add_media_to_history(media_type):
 def main():
     auth_trakt()
 
-    media_type = "show"  # or "movie"
+    # media_type: 'show' or 'movie'
+    media_type = "movie"
     add_media_to_history(media_type)
 
 
