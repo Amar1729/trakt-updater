@@ -63,6 +63,22 @@ def update_config(cfg, trakt):
         cfg.write(cfgfile)
 
 
+def auth_trakt():
+    cfg = get_config()
+
+    try:
+        trakt.core.CLIENT_ID = cfg["app"]["id"]
+        trakt.core.CLIENT_SECRET = cfg["app"]["sec"]
+        trakt.core.OAUTH_TOKEN = cfg["app"]["token"]
+    except KeyError:
+        username = cfg["user"]["username"]
+
+        trakt.core.AUTH_METHOD = trakt.core.OAUTH_AUTH
+        trakt.init(username)
+
+        update_config(cfg, trakt)
+
+
 def movie_releases(media: trakt.movies.Movie) -> str:
     return "\n".join([
         f"{c+1} ({m.release_type}): {m.release_date}"
@@ -185,19 +201,7 @@ def add_media_to_history(media_type):
 
 
 def main():
-    cfg = get_config()
-
-    try:
-        trakt.core.CLIENT_ID = cfg["app"]["id"]
-        trakt.core.CLIENT_SECRET = cfg["app"]["sec"]
-        trakt.core.OAUTH_TOKEN = cfg["app"]["token"]
-    except KeyError:
-        username = cfg["user"]["username"]
-
-        trakt.core.AUTH_METHOD = trakt.core.OAUTH_AUTH
-        trakt.init(username)
-
-        update_config(cfg, trakt)
+    auth_trakt()
 
     media_type = "show"  # or "movie"
     add_media_to_history(media_type)
