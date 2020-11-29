@@ -201,6 +201,8 @@ def add_media_to_history(media_type):
         medias = f.readlines()
 
     for media in medias:
+        if media.strip().endswith(":"):
+            continue
         add_media_interactive(media.strip(), media_type)
 
 
