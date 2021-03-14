@@ -44,6 +44,19 @@ import os
 
 
 fname = "./tv-shows-by-date-full.txt"
+selected = "./tv-show-selected.txt"
+
+
+def get_selected():
+    with open(selected) as f:
+        for line in f.readlines():
+            if line.strip():
+                if chr(8211) in line:
+                    # wikipedia has unicode characters similar to hyphens: '–'
+                    show = line.strip().split(chr(8211))[1].strip()
+                    yield show
+                else:
+                    yield line.strip()
 
 
 def find_movies(limit=0):
