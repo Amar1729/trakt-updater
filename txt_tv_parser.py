@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
 """
+1. select watched tv shows from list (e.g. copied from list of all tv shows aired in a time period)
+
 This file is required for this script to run:
 fname = "./tv-shows-by-date-full.txt"
 # content copied from:
@@ -29,6 +31,12 @@ January
 # this script parses the output and yields each line one at a time, prefixed by its release year
 # e.g.
 # 2001 - January 12 - some tv show name
+
+2. return list of selected tv shows
+requires:
+selected = "./tv-show-selected.txt"
+
+(i run `interface.py select` first, which generates the above file, then run update trakt
 """
 
 import re
