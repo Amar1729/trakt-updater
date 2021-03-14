@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 # import time
+import sys
 from itertools import zip_longest
 
 from picotui.context import Context
@@ -103,7 +104,12 @@ class Paginate:
         print()
 
 
-def main():
+def select_watched_shows():
+    """
+    Select the tv shows you've watched (from find_movies)
+    This function will write out year - month - name of show
+    to tv-show-selected.txt for later input
+    """
     p = Paginate(find_movies())
     p.run()
 
@@ -118,5 +124,25 @@ def main():
             f.write("\n")
 
 
+def update_trakt():
+    pass
+
+
 if __name__ == "__main__":
-    main()
+    try:
+        action = sys.argv[1]
+    except IndexError:
+        action = ""
+
+    if action not in ["select", "trakt"]:
+        print("Usage:")
+        print("  python interface.py select")
+        print("    -> select watched shows from list")
+        print("  python interface.py trakt")
+        print("    -> update trakt with watched tv shows")
+        sys.exit(1)
+
+    if action == "select":
+        select_watched_shows()
+    else:
+        update_trakt()
