@@ -104,10 +104,18 @@ class Paginate:
 
 
 def main():
-    p = Paginate(find_movies(limit=50))
+    p = Paginate(find_movies())
     p.run()
 
-    print(p.selected)
+    with open("tv-show-selected.txt") as f:
+        current = set([line.strip() for line in f.readlines() if line.strip()])
+
+    current.update(p.selected)
+
+    with open("tv-show-selected.txt", "w") as f:
+        for show in current:
+            f.write(show)
+            f.write("\n")
 
 
 if __name__ == "__main__":
