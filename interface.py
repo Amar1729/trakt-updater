@@ -39,6 +39,9 @@ class Paginate:
         def checkbox_changed(w):
             if w.choice:
                 self.selected.update([w.t])
+            else:
+                if w.t in self.selected:
+                    self.selected.remove(w.t)
 
         def redraw_screen():
             Screen.attr_color(C_WHITE, C_BLUE)
@@ -77,6 +80,7 @@ class Paginate:
                     break
 
                 except ZeroDivisionError:
+                    self.page += 1
                     redraw_screen()
                     d.redraw()
 
