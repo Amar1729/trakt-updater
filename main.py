@@ -134,9 +134,14 @@ def add_media_interactive(title: str, media_type: str):
     3) update user's history with selection
     """
     if media_type == "show":
+        # expects format 'S01 - tv show title'
         cleaned = " - ".join(title.split(" - ")[1:]).strip()
     else:
         cleaned = title
+    # remove quotes from search query
+    if cleaned.startswith("?"):
+        return
+    cleaned = cleaned.replace("'", "")
     results = trakt.movies.search(cleaned, search_type=media_type)
 
     print(f"Choose the matching result for '{title}' (or -1 to skip):")
