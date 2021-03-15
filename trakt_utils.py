@@ -32,6 +32,7 @@ import datetime
 # watch out for rate limits!
 # https://trakt.docs.apiary.io/#introduction/rate-limiting
 import time
+import sys
 
 from pprint import pprint
 from typing import Optional
@@ -215,13 +216,25 @@ def add_media_to_history(media_type):
         add_media_interactive(media.strip(), media_type)
 
 
-def main():
+def main(media_type):
     auth_trakt()
-
-    # media_type: 'show' or 'movie'
-    media_type = "movie"
     add_media_to_history(media_type)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        # media_type: 'show' or 'movie'
+        media_type = sys.argv[1]
+        assert media_type in ["show", "movie"]
+    except IndexError:
+        media_type = "movie"
+        print("using default media_type: movie")
+        print("if you would like to parse tv shows, use `python trakt_utils.py show`")
+        print()
+    except AssertionError:
+        print("usage:")
+        print("  python trakt_utils.py movie")
+        print("  python trakt_utils.py show")
+        sys.exit(1)
+
+    main(media_type)
