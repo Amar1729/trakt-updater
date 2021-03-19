@@ -11,7 +11,8 @@ from picotui.widgets import WRadioButton, WMultiEntry
 from picotui.defs import C_WHITE, C_BLUE
 
 # local
-from txt_tv_parser import find_movies
+import trakt_utils
+import txt_tv_parser as ttp
 
 
 def take_filled(iterable, n):
@@ -51,11 +52,6 @@ class Paginate:
                 if w.t in self.selected:
                     self.selected.remove(w.t)
 
-        def redraw_screen():
-            Screen.attr_color(C_WHITE, C_BLUE)
-            Screen.cls()
-            Screen.attr_reset()
-
         with Context():
             redraw_screen()
             x, y = Screen.screen_size()
@@ -78,7 +74,7 @@ class Paginate:
 
                     b = WButton(8, "Next")
                     d.add(12, y - 5, b)
-                    b.on("click", lambda w: 1/0)
+                    b.on("click", lambda w: 1 / 0)
 
                     b = WButton(8, "Done")
                     d.add(23, y - 5, b)
@@ -194,7 +190,7 @@ def select_watched_shows():
     This function will write out year - month - name of show
     to tv-show-selected.txt for later input
     """
-    p = Paginate(find_movies())
+    p = Paginate(ttp.find_movies())
     p.run()
 
     with open("tv-show-selected.txt") as f:
@@ -209,7 +205,7 @@ def select_watched_shows():
 
 
 def update_trakt():
-    tv_shows = list(get_selected())
+    tv_shows = list(ttp.get_selected())
 
     for show in tv_shows:
         s = SeasonSelector(tv_shows[0])
