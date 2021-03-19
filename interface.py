@@ -26,6 +26,12 @@ def take(iterable, n):
         return []
 
 
+def redraw_screen():
+    Screen.attr_color(C_WHITE, C_BLUE)
+    Screen.cls()
+    Screen.attr_reset()
+
+
 # wrapper widget to paginate multiple items and allow multi-selection.
 # only allows "next"/"done" (no "previous")
 # access results with Paginate.selected after completion
@@ -104,6 +110,83 @@ class Paginate:
         print()
 
 
+class SeasonSelector:
+    def __init__(self, show):
+        self.show = show
+        self.show_choice = None
+
+    def assign(self, show_choice):
+        self.show_choice = show_choice
+        raise ZeroDivisionError
+
+    def _run(self):
+        shows = trakt_utils.search_tv(self.show)
+
+        with Context():
+            redraw_screen()
+            x, y = Screen.screen_size()
+
+            d = Dialog(3, 1, x - 6, y - 2)
+
+            w_label = WLabel(f"> Searching: {self.show}")
+            d.add(1, 1, w_label)
+
+            show_display = lambda s: f"({s['year']}) - {s['title']}"
+            w_radio = WRadioButton([show_display(show) for show in shows])
+            d.add(1, 3, w_radio)
+
+            sd = list(trakt_utils.display_seasons(shows[0]["seasons"]))
+            w_showinfo = WMultiEntry(x // 2 - 10, y - 10, sd)
+            d.add(x // 2, 3, w_showinfo)
+
+            def show_selector_changed(w):
+                seasons = shows[w_radio.choice]["seasons"]
+                sd = list(trakt_utils.display_seasons(seasons))
+                w_showinfo.set(sd)
+                w_showinfo.redraw()
+            w_radio.on("changed", show_selector_changed)
+
+            b = WButton(10, "Select")
+            d.add(3, y - 5, b)
+
+            b2 = WButton(10, "Skip")
+            d.add(18, y - 5, b2)
+            b2.finish_dialog = ACTION_CANCEL
+
+            b.on("click", lambda w: self.assign(shows[w_radio.choice]))
+
+            d.loop()
+
+    def run(self):
+        try:
+            self._run()
+        except ZeroDivisionError:
+            return self.show_choice
+        return None
+
+
+class EpisodeSelector:
+    def __init__(self, title, season):
+        self.title = title
+        self.season = season
+
+    def run(self):
+        with Context():
+            redraw_screen()
+            x, y = Screen.screen_size()
+
+            d = Dialog(3, 1, x - 6, y - 2)
+
+            w_label = WLabel(f"> Selecting episodes for {self.title}: {self.season.title}")
+            d.add(1, 1, w_label)
+
+            # todo - impl.
+            w_checkbox = WCheckbox("State")
+            d.add(1, 3, w_checkbox)
+
+            d.loop()
+
+
 def select_watched_shows():
     """
     Select the tv shows you've watched (from find_movies)
@@ -125,7 +208,20 @@ def select_watched_shows():
 
 
 def update_trakt():
-    pass
+    tv_shows = list(get_selected())
+
+    for show in tv_shows:
+        s = SeasonSelector(tv_shows[0])
+        sc = s.run()
+
+        if sc:
+            print(sc)
+            for season in sc["seasons"]:
+                e = EpisodeSelector(sc["title"], season)
+                e.run()
+
+        # only run on first show while testing
+        break
 
 
 if __name__ == "__main__":

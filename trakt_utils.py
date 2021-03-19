@@ -28,6 +28,7 @@ config.ini the first time you run it.
 
 import configparser
 import datetime
+import functools
 
 # watch out for rate limits!
 # https://trakt.docs.apiary.io/#introduction/rate-limiting
@@ -82,6 +83,41 @@ def auth_trakt():
         trakt.init(username)
 
         update_config(cfg, trakt)
+
+
+# ----
+# helpers for interface.py
+
+
+def display_seasons(seasons):
+    for season in seasons:
+        try:
+            yield f"Season {season.number} ({season.first_aired.split('-')[0]})"
+            yield f"  {season.title} - {season.episode_count} episodes"
+        except:
+            yield ""
+
+
+@functools.lru_cache
+def search_tv(query):
+    auth_trakt()  # ?
+
+    query = query.replace("'", "")
+    results = trakt.movies.search(query, search_type="show")
+    return [
+        dict([
+            ("year", r.year),
+            ("title", r.title),
+            ("seasons", r.seasons),
+        ])
+        for r in results
+    ]
+
+
+def search_tv_episodes(season):
+    pass
+
+# ----
 
 
 def movie_releases(media: trakt.movies.Movie) -> str:
