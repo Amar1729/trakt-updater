@@ -278,6 +278,13 @@ def update_trakt(defer):
                     raise Exception(res)
 
 
+def deferred_updates():
+    for d in trakt_utils.read_serialized():
+        ep = list(d.items())[0][0]
+        print(f"> {ep.show} - Season {ep.season}")
+        episode_updates(d)
+
+
 def main():
     trakt_utils.auth_trakt()
 
@@ -304,22 +311,27 @@ def main():
             d = Dialog(0, 0, x, y)
 
             w_settings = [
-                WButton(7, "Defer"),
-                WButton(11, "On-select"),
+                WButton(47, "Defer updates until all episodes are selected"),
+                WButton(52, "Run trakt API calls after each season is complete"),
+                WButton(39, "Run trakt updates from a previous run")
             ]
             w_settings[0].finish_dialog = ACTION_OK
             w_settings[1].finish_dialog = ACTION_CANCEL
+            w_settings[2].finish_dialog = 1004
 
-            d.add(x // 2 - 57 // 2, y // 2 - 2, "Defer trakt updates until after all episodes are selected")
-            d.add(get_x(w_settings[0]), y // 2, w_settings[0])
-            d.add(get_x(w_settings[1]), y // 2 + 2, w_settings[1])
+            d.add(get_x(w_settings[0]), y // 2 - 2, w_settings[0])
+            d.add(get_x(w_settings[1]), y // 2, w_settings[1])
+            d.add(get_x(w_settings[2]), y // 2 + 2, w_settings[2])
 
-            defer = d.loop() == ACTION_OK
+            defer = d.loop()
 
     if res == 1:
         select_watched_shows()
     elif res == 2:
-        update_trakt(defer)
+        if defer == 1004:
+            deferred_updates()
+        else:
+            update_trakt(defer == ACTION_OK)
 
 
 if __name__ == "__main__":
