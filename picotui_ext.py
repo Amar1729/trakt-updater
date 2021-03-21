@@ -2,6 +2,9 @@
 Widget extensions to `picotui`
 """
 
+from typing import List
+from picotui.widgets import Widget, Dialog
+
 from picotui.widgets import ItemSelWidget, FocusableWidget
 
 from picotui.defs import C_B_BLUE, C_GREEN, C_B_GREEN
@@ -16,7 +19,7 @@ class WPager(ItemSelWidget):
     possible todo: "scrollbar" indicating position in multi-paged output
     """
 
-    def __init__(self, h, widgets, parent_dialog, offset=0):
+    def __init__(self, h: int, widgets: List[Widget], parent_dialog: Dialog, offset=0):
         super().__init__(widgets)
         # self.w = w
         self.w = max(w.w for w in widgets) + 2
@@ -30,7 +33,7 @@ class WPager(ItemSelWidget):
         self.parent_handle_key = self.parent.handle_key
         self.parent.handle_key = self.handle_key
 
-        self.displayed = []
+        self.displayed: List[Widget] = []
         self.reorder(start=0)
 
     def reorder(self, start=None, end=None):
