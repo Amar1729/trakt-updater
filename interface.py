@@ -272,24 +272,20 @@ def update_trakt(defer):
 
         if sc:
             for season in sc["seasons"]:
-                e = EpisodeSelector(sc["title"], season)
-                res = e.run()
+                ep = EpisodeSelector(sc["title"], season)
+                res = ep.run()
 
                 # TODO - implement actual trakt calls
-                if res == ACTION_OK:
-                    print("do stuff with trakt")
-                    print()
-                    for e, c in e.results.items():
-                        print(e, c)
-                elif res == 1004:
-                    print("mark each ep watched on release")
-                    for e, c in e.results.items():
-                        print(e, c)
+                if res in [ACTION_OK, 1004]:
+                    if defer:
+                        trakt_utils.bad_serializer(ep.results)
+                    else:
+                        ep.update()
                 elif res == ACTION_CANCEL:
                     # skipping this season
-                    print('skip')
+                    pass
                 else:
-                    print(res)
+                    raise Exception(res)
 
                 # while testing
                 break
