@@ -279,21 +279,30 @@ def update_trakt():
         break
 
 
-if __name__ == "__main__":
-    try:
-        action = sys.argv[1]
-    except IndexError:
-        action = ""
+def main():
+    with Context():
+        redraw_screen()
+        x, y = Screen.screen_size()
 
-    if action not in ["select", "trakt"]:
-        print("Usage:")
-        print("  python interface.py select")
-        print("    -> select watched shows from list")
-        print("  python interface.py trakt")
-        print("    -> update trakt with watched tv shows")
-        sys.exit(1)
+        d = Dialog(0, 0, x, y)
 
-    if action == "select":
+        w_select = WButton(14, "select shows")
+        w_select.finish_dialog = 1
+
+        w_trakt = WButton(14, "update trakt")
+        w_trakt.finish_dialog = 2
+
+        d.add(x // 2 - len(w_select.t) // 2, y // 4, w_select)
+        d.add(x // 2 - len(w_trakt.t) // 2, 3 * y // 4, w_trakt)
+
+        res = d.loop()
+
+    if res == 1:
         select_watched_shows()
-    else:
+    elif res == 2:
         update_trakt()
+
+
+if __name__ == "__main__":
+    # possible TODO: add arguments to specify txt files for input
+    main()
