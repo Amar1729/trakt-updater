@@ -114,11 +114,7 @@ class SeasonSelector:
         self.show = show
         self.show_choice = None
 
-    def assign(self, show_choice):
-        self.show_choice = show_choice
-        raise ZeroDivisionError
-
-    def _run(self):
+    def run(self):
         shows = trakt_utils.search_tv(self.show)
 
         with Context():
@@ -147,20 +143,23 @@ class SeasonSelector:
 
             b = WButton(10, "Select")
             d.add(2, y - 2, b)
+            b.finish_dialog = ACTION_OK
 
             b2 = WButton(10, "Skip")
             d.add(16, y - 2, b2)
             b2.finish_dialog = ACTION_CANCEL
 
-            b.on("click", lambda w: self.assign(shows[w_radio.choice]))
+            b_done = WButton(10, "Done")
+            d.add(30, y - 2, b_done)
+            b_done.finish_dialog = 1004
 
-            d.loop()
+            res = d.loop()
 
-    def run(self):
-        try:
-            self._run()
-        except ZeroDivisionError:
+        if res == ACTION_OK:
+            self.show_choice = shows[w_radio.choice]
             return self.show_choice
+        elif res == 1004:
+            return 1004
         return None
 
 
@@ -260,6 +259,9 @@ def update_trakt(defer):
     for show in tv_shows:
         s = SeasonSelector(tv_shows[0])
         sc = s.run()
+
+        if sc == 1004:
+            return
 
         if sc:
             for season in sc["seasons"]:
