@@ -116,6 +116,7 @@ class SeasonSelector:
 
             show_display = lambda s: f"({s['year']}) - {s['title']}"
             w_radio = WRadioButton([show_display(show) for show in shows])
+            w_radio.finish_dialog = ACTION_OK
             d.add(1, 3, w_radio)
 
             sd = list(trakt_utils.display_seasons(shows[0]["seasons"]))
@@ -129,26 +130,20 @@ class SeasonSelector:
                 w_showinfo.redraw()
             w_radio.on("changed", show_selector_changed)
 
-            b = WButton(10, "Select")
-            d.add(2, y - 2, b)
-            b.finish_dialog = ACTION_OK
-
             b2 = WButton(10, "Skip")
-            d.add(16, y - 2, b2)
-            b2.finish_dialog = ACTION_CANCEL
+            d.add(2, y - 2, b2)
+            b2.finish_dialog = ACTION_NEXT
 
             b_done = WButton(10, "Done")
-            d.add(30, y - 2, b_done)
-            b_done.finish_dialog = 1004
+            d.add(16, y - 2, b_done)
+            b_done.finish_dialog = ACTION_CANCEL
 
             res = d.loop()
 
         if res == ACTION_OK:
             self.show_choice = shows[w_radio.choice]
-            return self.show_choice
-        elif res == 1004:
-            return 1004
-        return None
+
+        return res
 
 
 def int_range_as_str(a, b):
@@ -246,14 +241,17 @@ def update_trakt(defer):
 
     for show in tv_shows:
         s = SeasonSelector(show)
-        sc = s.run()
+        ret = s.run()
 
-        if sc == 1004:
+        # skip this season on ACTION_NEXT
+
+        if ret == ACTION_CANCEL:
             return
 
-        if sc:
-            for season in sc["seasons"]:
-                ep = EpisodeSelector(sc["title"], season)
+        elif ret == ACTION_OK:
+            assert s.show_choice is not None
+            for season in s.show_choice["seasons"]:
+                ep = EpisodeSelector(s.show_choice["title"], season)
                 res = ep.run()
 
                 if res in [ACTION_OK, 1004]:
