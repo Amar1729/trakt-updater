@@ -4,7 +4,7 @@
 1. select watched tv shows from list (e.g. copied from list of all tv shows aired in a time period)
 
 This file is required for this script to run:
-fname = "./tv-shows-by-date-full.txt"
+FNAME = "wikipedia-tv-shows.txt"
 # content copied from:
 # (can just ctrl-a and copy all of it, then delete first few/last few lines)
 # https://en.wikipedia.org/wiki/List_of_American_television_programs_by_debut_date
@@ -32,23 +32,21 @@ January
 # e.g.
 # 2001 - January 12 - some tv show name
 
-2. return list of selected tv shows
+2. return list of watched tv shows
 requires:
-selected = "./tv-show-selected.txt"
-
-(i run `interface.py select` first, which generates the above file, then run update trakt
+SELECTED = "shows.txt"
 """
 
 import re
 import os
 
 
-fname = "./tv-shows-by-date-full.txt"
-selected = "./tv-show-selected.txt"
+FNAME = "wikipedia-tv-shows.txt"
+SELECTED = "shows.txt"
 
 
 def get_selected():
-    with open(selected) as f:
+    with open(SELECTED) as f:
         for line in f.readlines():
             if line.strip():
                 if chr(8211) in line:
@@ -62,11 +60,11 @@ def get_selected():
 def find_movies(limit=0):
     year = 0
 
-    if not os.path.exists(fname):
+    if not os.path.exists(FNAME):
         raise Exception("Read docstring for txt_tv_parser.py")
 
     counter = 0
-    with open(fname) as f:
+    with open(FNAME) as f:
         for line in f.readlines():
             if not line.strip():
                 pass
