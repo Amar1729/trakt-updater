@@ -257,7 +257,7 @@ def update_trakt(defer):
     tv_shows = list(ttp.get_selected())
 
     for show in tv_shows:
-        s = SeasonSelector(tv_shows[0])
+        s = SeasonSelector(show)
         sc = s.run()
 
         if sc == 1004:
