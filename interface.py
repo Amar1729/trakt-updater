@@ -58,11 +58,11 @@ class Paginate:
             x, y = Screen.screen_size()
 
             while True:
-                d = Dialog(3, 1, x - 6, y - 2)
+                d = Dialog(0, 0, x, y)
 
                 try:
                     # leave space for next/curr page labels
-                    results = next(take(self.itr, y - 8))
+                    results = next(take(self.itr, y - 4))
 
                     for idx, show in enumerate(results):
                         w_checkbox = WCheckbox(show)
@@ -71,14 +71,14 @@ class Paginate:
                         w_checkbox.on("changed", checkbox_changed)
 
                     b = WLabel(f"Page {self.page}")
-                    d.add(1, y - 5, b)
+                    d.add(1, y - 2, b)
 
                     b = WButton(8, "Next")
-                    d.add(12, y - 5, b)
+                    d.add(12, y - 2, b)
                     b.on("click", lambda w: 1 / 0)
 
                     b = WButton(8, "Done")
-                    d.add(23, y - 5, b)
+                    d.add(23, y - 2, b)
                     b.finish_dialog = ACTION_OK
 
                     d.loop()
@@ -124,7 +124,7 @@ class SeasonSelector:
             redraw_screen()
             x, y = Screen.screen_size()
 
-            d = Dialog(3, 1, x - 6, y - 2)
+            d = Dialog(0, 0, x, y)
 
             w_label = WLabel(f"> Searching: {self.show}")
             d.add(1, 1, w_label)
@@ -134,7 +134,7 @@ class SeasonSelector:
             d.add(1, 3, w_radio)
 
             sd = list(trakt_utils.display_seasons(shows[0]["seasons"]))
-            w_showinfo = WMultiEntry(x // 2 - 10, y - 10, sd)
+            w_showinfo = WMultiEntry(x // 2 - 2, y - 6, sd)
             d.add(x // 2, 3, w_showinfo)
 
             def show_selector_changed(w):
@@ -145,10 +145,10 @@ class SeasonSelector:
             w_radio.on("changed", show_selector_changed)
 
             b = WButton(10, "Select")
-            d.add(3, y - 5, b)
+            d.add(2, y - 2, b)
 
             b2 = WButton(10, "Skip")
-            d.add(18, y - 5, b2)
+            d.add(16, y - 2, b2)
             b2.finish_dialog = ACTION_CANCEL
 
             b.on("click", lambda w: self.assign(shows[w_radio.choice]))
@@ -208,7 +208,7 @@ class EpisodeSelector:
             d.add(1 + x // 2, 12, w_skip)
             w_skip.finish_dialog = ACTION_CANCEL
 
-            w_pager = WPager(y - 8, episodes, d, offset=1)
+            w_pager = WPager(y - 5, episodes, d, offset=1)
             d.add(1, 3, w_pager)
 
             res = d.loop()
