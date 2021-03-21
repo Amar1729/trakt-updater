@@ -236,10 +236,6 @@ class EpisodeSelector:
 
         return res
 
-    def update(self):
-        # unholy combination of TUI + tqdm ???
-        [trakt_utils.non_interactive_episode_add(*e) for e in tqdm.tqdm(self.results.items())]
-
 
 def select_watched_shows():
     """
@@ -251,6 +247,11 @@ def select_watched_shows():
     p.run()
 
     ttp.serialize(p.selected)
+
+
+def episode_updates(results):
+    # unholy combination of TUI + tqdm ???
+    [trakt_utils.non_interactive_episode_add(*e) for e in tqdm.tqdm(results.items())]
 
 
 def update_trakt(defer):
@@ -269,7 +270,7 @@ def update_trakt(defer):
                     if defer:
                         trakt_utils.bad_serializer(ep.results)
                     else:
-                        ep.update()
+                        episode_updates(ep.results)
                 elif res == ACTION_CANCEL:
                     # skipping this season
                     pass
