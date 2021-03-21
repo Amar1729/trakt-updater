@@ -162,28 +162,6 @@ class SeasonSelector:
         return None
 
 
-class EpisodeSelector:
-    def __init__(self, title, season):
-        self.title = title
-        self.season = season
-
-    def run(self):
-        with Context():
-            redraw_screen()
-            x, y = Screen.screen_size()
-
-            d = Dialog(3, 1, x - 6, y - 2)
-
-            w_label = WLabel(f"> Selecting episodes for {self.title}: {self.season.title}")
-            d.add(1, 1, w_label)
-
-            # todo - impl.
-            w_checkbox = WCheckbox("State")
-            d.add(1, 3, w_checkbox)
-
-            d.loop()
-
-
 def select_watched_shows():
     """
     Select the tv shows you've watched (from find_movies)
@@ -214,8 +192,9 @@ def update_trakt():
         if sc:
             print(sc)
             for season in sc["seasons"]:
-                e = EpisodeSelector(sc["title"], season)
-                e.run()
+                # e = EpisodeSelector(sc["title"], season)
+                # e.run()
+                pass  # rewriting this
 
         # only run on first show while testing
         break
