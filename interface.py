@@ -1,12 +1,13 @@
 #! /usr/bin/env python3
 
+import datetime as dt
 # import time
 import sys
 from itertools import zip_longest
 
 from picotui.context import Context
 from picotui.screen import Screen
-from picotui.widgets import Dialog, WButton, WLabel, WCheckbox, WRadioButton, WTextEntry, WMultiEntry
+from picotui.widgets import Dialog, WButton, WLabel, WCheckbox, WRadioButton, WTextEntry, WMultiEntry, WDropDown
 from picotui.widgets import ACTION_OK, ACTION_CANCEL
 from picotui.defs import C_WHITE, C_BLUE
 
@@ -163,6 +164,10 @@ class SeasonSelector:
         return None
 
 
+def int_range_as_str(a, b):
+    return list(map(str, range(a, b)))
+
+
 class EpisodeSelector:
     def __init__(self, title, season):
         self.title = title
@@ -181,16 +186,21 @@ class EpisodeSelector:
 
             d = Dialog(0, 0, x, y)
 
-            w_label = WLabel(f"> Selecting {len(self.episodes)} episodes for {self.title}: Season {self.season.number}")
-            d.add(1, 1, w_label)
+            d.add(1, 1, f"> Selecting {len(self.episodes)} episodes for {self.title}: Season {self.season.number}")
 
-            w_input_date = WTextEntry(11, "YYYY/MM/DD")
-            w_input_label = WLabel("(optional) Input Date:")
-            d.add(1 + x // 2, 3, w_input_label)
-            d.add(24 + x // 2, 3, w_input_date)
+            d.add(1 + x // 2, 3, "Mark multiple episodes on the same date (YYYY/MM/DD)")
 
-            w_input_explanation = WLabel("Input Date: mark multiple episodes on the same date")
-            d.add(1 + x // 2, 4, w_input_explanation)
+            w_dates = [
+                WDropDown(6, int_range_as_str(1980, dt.datetime.now().year + 1)[::-1]),
+                WDropDown(4, int_range_as_str(1, 13)),
+                WDropDown(4, int_range_as_str(1, 32)),
+            ]
+
+            d.add(1 + x // 2, 4, "(optional) Input Date:")
+            i = 24 + x // 2
+            d.add(i, 4, w_dates[0])
+            d.add(i + 7, 4, w_dates[1])
+            d.add(i + 12, 4, w_dates[2])
 
             w_release_label = WLabel("Each episode watched on release")
             w_release = WButton(12, "On Release")
@@ -216,10 +226,11 @@ class EpisodeSelector:
         if res in [ACTION_OK, 1004]:
             for w_ep in w_pager.items:
                 if w_ep.choice == 0:
+                    # datetime.datetime object
                     self.results[w_ep.ep] = w_ep.ep.first_aired_date
                 elif w_ep.choice == 1:
-                    # TODO - add date parsing to this input somehow?
-                    self.results[w_ep.ep] = w_input_date.t
+                    d = dt.datetime(year=w_dates[0], month=w_dates[1], day=w_dates[2])
+                    self.results[w_ep.ep] = d
 
         return res
 
