@@ -106,6 +106,16 @@ def bad_serializer(d):
         pickle.dump(od, f)
 
 
+def read_serialized():
+    pf = "serialized.pickle"
+    if not os.path.exists(pf):
+        raise Exception("Serialized file does not exist yet. Run a deferred update first.")
+
+    with open(pf, "rb") as f:
+        for res in pickle.load(f):
+            yield res
+
+
 def display_seasons(seasons):
     for season in seasons:
         try:
