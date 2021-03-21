@@ -29,6 +29,8 @@ config.ini the first time you run it.
 import configparser
 import datetime
 import functools
+import os
+import pickle
 
 # watch out for rate limits!
 # https://trakt.docs.apiary.io/#introduction/rate-limiting
@@ -87,6 +89,21 @@ def auth_trakt():
 
 # ----
 # helpers for interface.py
+
+
+def bad_serializer(d):
+    """
+    use `pickle` to serialize episodes into a file for later updating trakt all at once
+    this seems like bad style, just be careful with your pickle files!
+    """
+    pf = "serialized.pickle"
+    od = []
+    if os.path.exists(pf):
+        with open(pf, "rb") as f:
+            od = pickle.load(f)
+    od.append(d)
+    with open(pf, "wb") as f:
+        pickle.dump(od, f)
 
 
 def display_seasons(seasons):
