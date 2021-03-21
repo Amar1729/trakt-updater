@@ -40,9 +40,34 @@ SELECTED = "shows.txt"
 import re
 import os
 
+from typing import Set
+
 
 FNAME = "wikipedia-tv-shows.txt"
 SELECTED = "shows.txt"
+
+
+def clean_paste(s):
+    # only save ascii characters from our tv show names
+    if chr(8211) in s:
+        _, s = s.split(chr(8211))
+    s = s.encode("ascii", "ignore").decode()
+    return s.strip()
+
+
+def serialize(updated: Set[bytes]):
+    old = set()
+    if os.path.exists(SELECTED):
+        with open(SELECTED) as f:
+            old = set(map(clean_paste, f.readlines()))
+
+    current = set(map(clean_paste, updated))
+    current.update(old)
+
+    with open(SELECTED, "w") as f:
+        for show in sorted(current):
+            f.write(show)
+            f.write("\n")
 
 
 def get_selected():

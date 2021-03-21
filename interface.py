@@ -244,21 +244,13 @@ class EpisodeSelector:
 def select_watched_shows():
     """
     Select the tv shows you've watched (from find_movies)
-    This function will write out year - month - name of show
-    to tv-show-selected.txt for later input
+    This function will serialize selected shows to a file
+    for later ingestion in update_trakt
     """
     p = Paginate(ttp.find_movies())
     p.run()
 
-    with open("tv-show-selected.txt") as f:
-        current = set([line.strip() for line in f.readlines() if line.strip()])
-
-    current.update(p.selected)
-
-    with open("tv-show-selected.txt", "w") as f:
-        for show in current:
-            f.write(show)
-            f.write("\n")
+    ttp.serialize(p.selected)
 
 
 def update_trakt(defer):
