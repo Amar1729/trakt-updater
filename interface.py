@@ -6,8 +6,8 @@ from itertools import zip_longest
 
 from picotui.context import Context
 from picotui.screen import Screen
-from picotui.widgets import Dialog, WButton, WLabel, ACTION_OK, ACTION_CANCEL, WCheckbox
-from picotui.widgets import WRadioButton, WMultiEntry
+from picotui.widgets import Dialog, WButton, WLabel, WCheckbox, WRadioButton, WTextEntry, WMultiEntry
+from picotui.widgets import ACTION_OK, ACTION_CANCEL
 from picotui.defs import C_WHITE, C_BLUE
 
 # local
