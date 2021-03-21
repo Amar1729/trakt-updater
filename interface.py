@@ -8,7 +8,7 @@ import tqdm
 from picotui.context import Context
 from picotui.screen import Screen
 from picotui.widgets import Dialog, WButton, WLabel, WCheckbox, WRadioButton, WTextEntry, WMultiEntry, WDropDown
-from picotui.widgets import ACTION_OK, ACTION_CANCEL
+from picotui.widgets import ACTION_OK, ACTION_NEXT, ACTION_CANCEL
 from picotui.defs import C_WHITE, C_BLUE
 
 # local
@@ -55,10 +55,9 @@ class Paginate:
                     self.selected.remove(w.t)
 
         with Context():
-            redraw_screen()
-            x, y = Screen.screen_size()
-
             while True:
+                redraw_screen()
+                x, y = Screen.screen_size()
                 d = Dialog(0, 0, x, y)
 
                 try:
@@ -76,37 +75,26 @@ class Paginate:
 
                     b = WButton(8, "Next")
                     d.add(12, y - 2, b)
-                    b.on("click", lambda w: 1 / 0)
+                    b.finish_dialog = ACTION_NEXT
 
                     b = WButton(8, "Done")
                     d.add(23, y - 2, b)
-                    b.finish_dialog = ACTION_OK
+                    b.finish_dialog = ACTION_CANCEL
 
-                    d.loop()
-                    break
+                    res = d.loop()
 
-                except ZeroDivisionError:
-                    self.page += 1
-                    redraw_screen()
-                    d.redraw()
+                    if res == ACTION_NEXT:
+                        self.page += 1
+                    elif res == ACTION_CANCEL:
+                        Screen.cls()
+                        return
+                    else:
+                        print(res)
+                        raise Exception(res)
 
                 except StopIteration:
-                    # redraw_screen()
                     Screen.cls()
-
-                    """
-                    # this approach doesn't work ?
-                    d = Dialog(3, 1, x - 6, y - 2)
-
-                    b = WLabel("No more results, exiting")
-                    d.add(1, y - 4, b)
-
-                    time.sleep(2)
-                    """
-
-                    break
-
-        print()
+                    return
 
 
 class SeasonSelector:
