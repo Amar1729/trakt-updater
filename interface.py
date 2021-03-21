@@ -191,9 +191,9 @@ class EpisodeSelector:
             d.add(1 + x // 2, 3, "Mark multiple episodes on the same date (YYYY/MM/DD)")
 
             w_dates = [
-                WDropDown(6, int_range_as_str(1980, dt.datetime.now().year + 1)[::-1]),
-                WDropDown(4, int_range_as_str(1, 13)),
-                WDropDown(4, int_range_as_str(1, 32)),
+                WDropDown(6, int_range_as_str(1980, dt.datetime.now().year + 1)[::-1], dropdown_h=12),
+                WDropDown(4, int_range_as_str(1, 13), dropdown_h=14),
+                WDropDown(4, int_range_as_str(1, 32), dropdown_h=12),
             ]
 
             d.add(1 + x // 2, 4, "(optional) Input Date:")
@@ -223,13 +223,15 @@ class EpisodeSelector:
 
             res = d.loop()
 
+        get_dd = lambda i: int(w_dates[i].items[w_dates[i].choice])
+
         if res in [ACTION_OK, 1004]:
             for w_ep in w_pager.items:
                 if w_ep.choice == 0:
                     # datetime.datetime object
                     self.results[w_ep.ep] = w_ep.ep.first_aired_date
                 elif w_ep.choice == 1:
-                    d = dt.datetime(year=w_dates[0], month=w_dates[1], day=w_dates[2])
+                    d = dt.datetime(year=get_dd(0), month=get_dd(1), day=get_dd(2))
                     self.results[w_ep.ep] = d
 
         return res
