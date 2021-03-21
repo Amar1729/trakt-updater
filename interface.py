@@ -5,6 +5,8 @@ import datetime as dt
 import sys
 from itertools import zip_longest
 
+# third-party
+import tqdm
 from picotui.context import Context
 from picotui.screen import Screen
 from picotui.widgets import Dialog, WButton, WLabel, WCheckbox, WRadioButton, WTextEntry, WMultiEntry, WDropDown
@@ -235,6 +237,10 @@ class EpisodeSelector:
                     self.results[w_ep.ep] = d
 
         return res
+
+    def update(self):
+        # unholy combination of TUI + tqdm ???
+        [trakt_utils.non_interactive_episode_add(*e) for e in tqdm.tqdm(self.results.items())]
 
 
 def select_watched_shows():

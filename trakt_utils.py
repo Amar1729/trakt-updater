@@ -117,6 +117,16 @@ def search_tv(query):
 def search_tv_episodes(season):
     pass
 
+
+def non_interactive_episode_add(episode, date_obj):
+    assert isinstance(episode, trakt.tv.TVEpisode)
+    # python trakt is doing non-timezone aware datetimes
+    date_obj = date_obj + datetime.timedelta(seconds=OFFSET)
+    trakt.sync.add_to_history(episode, watched_at=date_obj)
+
+    # rate limit: 2 POST calls every 1 sec
+    time.sleep(1)
+
 # ----
 
 
