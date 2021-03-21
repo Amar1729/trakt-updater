@@ -238,7 +238,10 @@ class WEpisodeWidget(ItemSelWidget):
         self.attr_reset()
 
     def handle_mouse(self, x, y):
-        pass
+        if self.y + 1 < y < self.y + self.h:
+            self.choice = y - self.y - 2
+            self.redraw()
+            self.signal("changed")
 
     def handle_key(self, key):
         if key == KEY_UP:
