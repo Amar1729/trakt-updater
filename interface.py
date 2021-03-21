@@ -163,6 +163,67 @@ class SeasonSelector:
         return None
 
 
+class EpisodeSelector:
+    def __init__(self, title, season):
+        self.title = title
+        self.season = season
+        self.episodes = season.episodes
+
+        # fill out in run()
+        self.results = {}
+
+    def run(self):
+        episodes = list(map(WEpisodeWidget, self.episodes))
+
+        with Context():
+            redraw_screen()
+            x, y = Screen.screen_size()
+
+            d = Dialog(0, 0, x, y)
+
+            w_label = WLabel(f"> Selecting {len(self.episodes)} episodes for {self.title}: Season {self.season.number}")
+            d.add(1, 1, w_label)
+
+            w_input_date = WTextEntry(11, "YYYY/MM/DD")
+            w_input_label = WLabel("(optional) Input Date:")
+            d.add(1 + x // 2, 3, w_input_label)
+            d.add(24 + x // 2, 3, w_input_date)
+
+            w_input_explanation = WLabel("Input Date: mark multiple episodes on the same date")
+            d.add(1 + x // 2, 4, w_input_explanation)
+
+            w_release_label = WLabel("Each episode watched on release")
+            w_release = WButton(12, "On Release")
+            d.add(1 + x // 2, 6, w_release_label)
+            d.add(1 + x // 2, 7, w_release)
+            w_release.finish_dialog = 1004
+
+            w_done_label = WLabel("Mark each episode as selected on the left")
+            w_done = WButton(15, "Finish Season")
+            d.add(1 + x // 2, 9, w_done_label)
+            d.add(1 + x // 2, 10, w_done)
+            w_done.finish_dialog = ACTION_OK
+
+            w_skip = WButton(13, "Skip Season")
+            d.add(1 + x // 2, 12, w_skip)
+            w_skip.finish_dialog = ACTION_CANCEL
+
+            w_pager = WPager(y - 8, episodes, d, offset=1)
+            d.add(1, 3, w_pager)
+
+            res = d.loop()
+
+        if res in [ACTION_OK, 1004]:
+            for w_ep in w_pager.items:
+                if w_ep.choice == 0:
+                    self.results[w_ep.ep] = w_ep.ep.first_aired_date
+                elif w_ep.choice == 1:
+                    # TODO - add date parsing to this input somehow?
+                    self.results[w_ep.ep] = w_input_date.t
+
+        return res
+
+
 def select_watched_shows():
     """
     Select the tv shows you've watched (from find_movies)
@@ -191,11 +252,28 @@ def update_trakt():
         sc = s.run()
 
         if sc:
-            print(sc)
             for season in sc["seasons"]:
-                # e = EpisodeSelector(sc["title"], season)
-                # e.run()
-                pass  # rewriting this
+                e = EpisodeSelector(sc["title"], season)
+                res = e.run()
+
+                # TODO - implement actual trakt calls
+                if res == ACTION_OK:
+                    print("do stuff with trakt")
+                    print()
+                    for e, c in e.results.items():
+                        print(e, c)
+                elif res == 1004:
+                    print("mark each ep watched on release")
+                    for e, c in e.results.items():
+                        print(e, c)
+                elif res == ACTION_CANCEL:
+                    # skipping this season
+                    print('skip')
+                else:
+                    print(res)
+
+                # while testing
+                break
 
         # only run on first show while testing
         break
