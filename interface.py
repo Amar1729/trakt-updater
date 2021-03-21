@@ -13,6 +13,7 @@ from picotui.defs import C_WHITE, C_BLUE
 # local
 import trakt_utils
 import txt_tv_parser as ttp
+from picotui_ext import WPager, WEpisodeWidget
 
 
 def take_filled(iterable, n):
