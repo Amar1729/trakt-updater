@@ -208,7 +208,7 @@ class EpisodeSelector:
             d.add(1 + x // 2, 7, w_release)
             w_release.finish_dialog = 1004
 
-            w_done_label = WLabel("Mark each episode as selected on the left")
+            w_done_label = WLabel("Mark each episode (as selected on the left)")
             w_done = WButton(15, "Finish Season")
             d.add(1 + x // 2, 9, w_done_label)
             d.add(1 + x // 2, 10, w_done)

@@ -184,12 +184,14 @@ class WPager(ItemSelWidget):
         i = 0
         for w in self.parent.childs:
             if isinstance(w, FocusableWidget) and w.inside(x, y):
+                # TODO - add a check here for changing WPager's focus to the clicked child
                 if not isinstance(w, WPager):
                     return i, w
             i += 1
         return None, None
 
     def handle_mouse(self, x, y):
+        # TODO - handle clicks on the up/down arrows?
         # Work in absolute coordinates
         if self.inside(x, y):
             self.focus_idx, w = self.find_focusable_by_xy(x, y)
