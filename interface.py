@@ -276,12 +276,6 @@ def update_trakt(defer):
                 else:
                     raise Exception(res)
 
-                # while testing
-                break
-
-        # only run on first show while testing
-        break
-
 
 def main():
     trakt_utils.auth_trakt()
