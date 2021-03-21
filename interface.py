@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
 import datetime as dt
-# import time
-import sys
 from itertools import zip_longest
 
 # third-party
@@ -275,7 +273,6 @@ def update_trakt(defer):
                 ep = EpisodeSelector(sc["title"], season)
                 res = ep.run()
 
-                # TODO - implement actual trakt calls
                 if res in [ACTION_OK, 1004]:
                     if defer:
                         trakt_utils.bad_serializer(ep.results)
