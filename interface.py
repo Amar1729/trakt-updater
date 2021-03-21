@@ -263,7 +263,7 @@ def select_watched_shows():
             f.write("\n")
 
 
-def update_trakt():
+def update_trakt(defer):
     tv_shows = list(ttp.get_selected())
 
     for show in tv_shows:
@@ -299,9 +299,13 @@ def update_trakt():
 
 
 def main():
+    trakt_utils.auth_trakt()
+
     with Context():
         redraw_screen()
         x, y = Screen.screen_size()
+
+        get_x = lambda w: x // 2 - len(w.t) // 2
 
         d = Dialog(0, 0, x, y)
 
@@ -311,15 +315,31 @@ def main():
         w_trakt = WButton(14, "update trakt")
         w_trakt.finish_dialog = 2
 
-        d.add(x // 2 - len(w_select.t) // 2, y // 4, w_select)
-        d.add(x // 2 - len(w_trakt.t) // 2, 3 * y // 4, w_trakt)
+        d.add(get_x(w_select), y // 4, w_select)
+        d.add(get_x(w_trakt), 3 * y // 4, w_trakt)
 
         res = d.loop()
+
+        if res == 2:
+            d = Dialog(0, 0, x, y)
+
+            w_settings = [
+                WButton(7, "Defer"),
+                WButton(11, "On-select"),
+            ]
+            w_settings[0].finish_dialog = ACTION_OK
+            w_settings[1].finish_dialog = ACTION_CANCEL
+
+            d.add(x // 2 - 57 // 2, y // 2 - 2, "Defer trakt updates until after all episodes are selected")
+            d.add(get_x(w_settings[0]), y // 2, w_settings[0])
+            d.add(get_x(w_settings[1]), y // 2 + 2, w_settings[1])
+
+            defer = d.loop() == ACTION_OK
 
     if res == 1:
         select_watched_shows()
     elif res == 2:
-        update_trakt()
+        update_trakt(defer)
 
 
 if __name__ == "__main__":
