@@ -26,6 +26,7 @@ class WPager(ItemSelWidget):
         self.h = h
         self.offset = offset
 
+        self.focus = False
         self.focus_w = None
         self.parent = parent_dialog
 
