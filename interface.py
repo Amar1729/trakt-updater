@@ -184,20 +184,25 @@ class EpisodeSelector:
             d.add(i + 7, 4, w_dates[1])
             d.add(i + 12, 4, w_dates[2])
 
+            w_input_date = WButton(12, "Input Date")
+            d.add(1 + x // 2, 5, "Each non-skipped episode watched on input date")
+            d.add(1 + x // 2, 6, w_input_date)
+            w_input_date.finish_dialog = 1005
+
             w_release_label = WLabel("Each episode watched on release")
             w_release = WButton(12, "On Release")
-            d.add(1 + x // 2, 6, w_release_label)
-            d.add(1 + x // 2, 7, w_release)
+            d.add(1 + x // 2, 8, w_release_label)
+            d.add(1 + x // 2, 9, w_release)
             w_release.finish_dialog = 1004
 
             w_done_label = WLabel("Mark each episode (as selected on the left)")
             w_done = WButton(15, "Finish Season")
-            d.add(1 + x // 2, 9, w_done_label)
-            d.add(1 + x // 2, 10, w_done)
+            d.add(1 + x // 2, 11, w_done_label)
+            d.add(1 + x // 2, 12, w_done)
             w_done.finish_dialog = ACTION_OK
 
             w_skip = WButton(13, "Skip Season")
-            d.add(1 + x // 2, 12, w_skip)
+            d.add(1 + x // 2, 14, w_skip)
             w_skip.finish_dialog = ACTION_CANCEL
 
             w_pager = WPager(y - 5, episodes, d, offset=1)
@@ -213,6 +218,11 @@ class EpisodeSelector:
                     # datetime.datetime object
                     self.results[w_ep.ep] = w_ep.ep.first_aired_date
                 elif w_ep.choice == 1:
+                    d = dt.datetime(year=get_dd(0), month=get_dd(1), day=get_dd(2))
+                    self.results[w_ep.ep] = d
+        elif res == 1005:
+            for w_ep in w_pager.items:
+                if w_ep.choice != 2:
                     d = dt.datetime(year=get_dd(0), month=get_dd(1), day=get_dd(2))
                     self.results[w_ep.ep] = d
 
@@ -254,7 +264,7 @@ def update_trakt(defer):
                 ep = EpisodeSelector(s.show_choice["title"], season)
                 res = ep.run()
 
-                if res in [ACTION_OK, 1004]:
+                if res in [ACTION_OK, 1004, 1005]:
                     if defer:
                         trakt_utils.bad_serializer(ep.results)
                     else:
