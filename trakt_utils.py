@@ -71,8 +71,17 @@ def update_config(cfg, trakt):
         cfg.write(cfgfile)
 
 
-def auth_trakt():
+def auth_trakt(force_update=False):
     cfg = get_config()
+
+    if force_update:
+        username = cfg["user"]["username"]
+
+        trakt.core.AUTH_METHOD = trakt.core.OAUTH_AUTH
+        trakt.init(username, client_id=cfg["app"]["id"], client_secret=cfg["app"]["sec"])
+
+        update_config(cfg, trakt)
+        return
 
     try:
         trakt.core.CLIENT_ID = cfg["app"]["id"]
@@ -147,8 +156,6 @@ def search_tv_episodes(season):
 
 def non_interactive_episode_add(episode, date_obj):
     assert isinstance(episode, trakt.tv.TVEpisode)
-    # python trakt is doing non-timezone aware datetimes
-    date_obj = date_obj + datetime.timedelta(seconds=OFFSET)
     trakt.sync.add_to_history(episode, watched_at=date_obj)
 
     # rate limit: 2 POST calls every 1 sec
