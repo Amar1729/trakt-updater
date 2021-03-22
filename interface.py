@@ -205,6 +205,10 @@ class EpisodeSelector:
             d.add(1 + x // 2, 14, w_skip)
             w_skip.finish_dialog = ACTION_CANCEL
 
+            w_skip_show = WButton(19, "Skip Rest of Show")
+            d.add(1 + x // 2, 16, w_skip_show)
+            w_skip_show.finish_dialog = ACTION_NEXT
+
             w_pager = WPager(y - 5, episodes, d, offset=1)
             d.add(1, 3, w_pager)
 
@@ -272,6 +276,9 @@ def update_trakt(defer):
                 elif res == ACTION_CANCEL:
                     # skipping this season
                     pass
+                elif res == ACTION_NEXT:
+                    # skip the rest of this show
+                    break
                 else:
                     raise Exception(res)
 
