@@ -1,0 +1,9 @@
+# rename this file -> config.ini
+
+[user]
+username = username
+
+[app]
+id = trakt-app-id
+sec = trakt-app-secret
+token = trakt-app-token
