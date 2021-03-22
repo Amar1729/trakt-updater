@@ -2,6 +2,7 @@
 Widget extensions to `picotui`
 """
 
+from enum import Enum
 from typing import List
 from picotui.widgets import Widget, Dialog
 
@@ -199,6 +200,12 @@ class WPager(ItemSelWidget):
                 return w.handle_mouse(x, y)
 
 
+class EP_WATCHED(Enum):
+    SKIP = 0
+    AIRED = 1
+    DATE = 2
+
+
 class WEpisodeWidget(ItemSelWidget):
     """
     Custom widget to display choosing when an episode was watched.
@@ -211,9 +218,9 @@ class WEpisodeWidget(ItemSelWidget):
             f"Title: {self.ep.title}",
         ]
         items = [
+            "Skipped",
             "Watched on Air Date",
             "Input Date",
-            "Skipped",
         ]
         super().__init__(items)
         self.h = 5

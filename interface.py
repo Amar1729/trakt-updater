@@ -15,6 +15,7 @@ from picotui.defs import C_WHITE, C_BLUE
 import trakt_utils
 import txt_tv_parser as ttp
 from picotui_ext import WPager, WEpisodeWidget
+from picotui_ext import EP_WATCHED
 
 
 def take_filled(iterable, n):
@@ -221,15 +222,15 @@ class EpisodeSelector:
 
         if res in [ACTION_OK, 1004]:
             for w_ep in w_pager.items:
-                if w_ep.choice == 0:
+                if w_ep.choice == EP_WATCHED.AIRED:
                     # datetime.datetime object
                     self.results[w_ep.ep] = w_ep.ep.first_aired_date
-                elif w_ep.choice == 1:
+                elif w_ep.choice == EP_WATCHED.DATE:
                     d = dt.datetime(year=get_dd(0), month=get_dd(1), day=get_dd(2))
                     self.results[w_ep.ep] = d
-        elif res == 1005:
+        elif res in [1005, 1006]:
             for w_ep in w_pager.items:
-                if w_ep.choice != 2:
+                if res == 1006 or w_ep.choice != EP_WATCHED.SKIP:
                     d = dt.datetime(year=get_dd(0), month=get_dd(1), day=get_dd(2))
                     self.results[w_ep.ep] = d
 
@@ -271,7 +272,7 @@ def update_trakt(defer):
                 ep = EpisodeSelector(s.show_choice["title"], season)
                 res = ep.run()
 
-                if res in [ACTION_OK, 1004, 1005]:
+                if res in [ACTION_OK, 1004, 1005, 1006]:
                     if defer:
                         trakt_utils.bad_serializer(ep.results)
                     else:
