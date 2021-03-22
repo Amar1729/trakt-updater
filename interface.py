@@ -193,24 +193,29 @@ class EpisodeSelector:
             d.add(1 + x // 2, 6, w_input_date)
             w_input_date.finish_dialog = 1005
 
+            w_input_date_nonskip = WButton(12, "Input Date")
+            d.add(1 + x // 2, 8, "EACH (including skipped) episode watched on input date")
+            d.add(1 + x // 2, 9, w_input_date_nonskip)
+            w_input_date_nonskip.finish_dialog = 1006
+
             w_release_label = WLabel("Each episode watched on release")
             w_release = WButton(12, "On Release")
-            d.add(1 + x // 2, 8, w_release_label)
-            d.add(1 + x // 2, 9, w_release)
+            d.add(1 + x // 2, 11, w_release_label)
+            d.add(1 + x // 2, 12, w_release)
             w_release.finish_dialog = 1004
 
             w_done_label = WLabel("Mark each episode (as selected on the left)")
             w_done = WButton(15, "Finish Season")
-            d.add(1 + x // 2, 11, w_done_label)
-            d.add(1 + x // 2, 12, w_done)
+            d.add(1 + x // 2, 14, w_done_label)
+            d.add(1 + x // 2, 15, w_done)
             w_done.finish_dialog = ACTION_OK
 
             w_skip = WButton(13, "Skip Season")
-            d.add(1 + x // 2, 14, w_skip)
+            d.add(1 + x // 2, 17, w_skip)
             w_skip.finish_dialog = ACTION_CANCEL
 
             w_skip_show = WButton(19, "Skip Rest of Show")
-            d.add(1 + x // 2, 16, w_skip_show)
+            d.add(1 + x // 2, 19, w_skip_show)
             w_skip_show.finish_dialog = ACTION_NEXT
 
             w_pager = WPager(y - 5, episodes, d, offset=1)
