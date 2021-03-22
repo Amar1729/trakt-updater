@@ -96,6 +96,16 @@ def auth_trakt(force_update=False):
         update_config(cfg, trakt)
 
 
+def safe_auth(f):
+    def wrapper(*args, **kwargs):
+        try:
+            f(*args, **kwargs)
+        except trakt.errors.OAuthException:
+            auth_trakt(True)
+            f(*args, **kwargs)
+    return wrapper
+
+
 # ----
 # helpers for interface.py
 
@@ -154,6 +164,7 @@ def search_tv_episodes(season):
     pass
 
 
+@safe_auth
 def non_interactive_episode_add(episode, date_obj):
     assert isinstance(episode, trakt.tv.TVEpisode)
     trakt.sync.add_to_history(episode, watched_at=date_obj)
