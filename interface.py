@@ -162,6 +162,9 @@ class EpisodeSelector:
     def run(self):
         episodes = list(map(WEpisodeWidget, self.episodes))
 
+        if not episodes:
+            return ACTION_CANCEL
+
         with Context():
             redraw_screen()
             x, y = Screen.screen_size()
