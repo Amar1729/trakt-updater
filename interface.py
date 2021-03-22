@@ -267,6 +267,9 @@ def update_trakt(defer):
 
 
 def deferred_updates():
+    print("The serialized file is NOT removed between runs.")
+    print("This will result in deuplicate plays of episodes if you re-run deferred updates.")
+    print("Make sure to delete serialized.pickle after successful updates.")
     for d in trakt_utils.read_serialized():
         ep = list(d.items())[0][0]
         print(f"> {ep.show} - Season {ep.season}")
