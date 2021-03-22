@@ -112,6 +112,16 @@ class SeasonSelector:
 
             d = Dialog(0, 0, x, y)
 
+            if not shows:
+                w_bad = WButton(4, "OK")
+                st1 = "could not find seasons for query:"
+                st2 = f"{self.show}"
+                d.add(x // 2 - len(st1) // 2, y // 2 - 3, st1)
+                d.add(x // 2 - len(st2) // 2, y // 2 - 2, st2)
+                d.add(x // 2 - 2, y // 2, w_bad)
+                w_bad.finish_dialog = ACTION_NEXT
+                return d.loop()
+
             w_label = WLabel(f"> Searching: {self.show}")
             d.add(1, 1, w_label)
 
