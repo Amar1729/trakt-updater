@@ -21,7 +21,6 @@ class WPager(ItemSelWidget):
 
     def __init__(self, h: int, widgets: List[Widget], parent_dialog: Dialog, offset=0):
         super().__init__(widgets)
-        # self.w = w
         self.w = max(w.w for w in widgets) + 2
         self.h = h
         self.offset = offset
