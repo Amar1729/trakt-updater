@@ -187,7 +187,7 @@ class EpisodeSelector:
             d.add(1 + x // 2, 3, "Mark multiple episodes on the same date (YYYY/MM/DD)")
 
             w_dates = [
-                WDropDown(6, int_range_as_str(1980, dt.datetime.now().year + 1)[::-1], dropdown_h=12),
+                WDropDown(6, int_range_as_str(1980, dt.datetime.now().year + 1)[::-1], dropdown_h=15),
                 WDropDown(4, int_range_as_str(1, 13), dropdown_h=14),
                 WDropDown(4, int_range_as_str(1, 32), dropdown_h=12),
             ]
