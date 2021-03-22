@@ -252,6 +252,44 @@ class EpisodeSelector:
         return res
 
 
+class StructuredUpdate:
+    def __init__(self, show, trakt_season, date):
+        self.show = show
+        self.trakt_season = trakt_season
+        self.date = date
+
+    def run(self):
+        with Context():
+            redraw_screen()
+            x, y = Screen.screen_size()
+
+            d = Dialog(0, 0, x, y)
+
+            d.add(1, 1, f"Confirm: {self.show['title']}, Season {self.trakt_season.number}")
+            d.add(1, 2, f"> watched all episodes on {self.date}")
+
+            w_ok = WButton(4, "OK")
+            w_ok.finish_dialog = ACTION_OK
+            d.add(2, 4, w_ok)
+
+            w_cancel = WButton(8, "Cancel")
+            w_cancel.finish_dialog = ACTION_CANCEL
+            d.add(10, 4, w_cancel)
+
+            sd = list(trakt_utils.display_seasons(self.show["seasons"]))
+            w_showinfo = WMultiEntry(x // 2 - 2, 3 * y // 4, sd)
+            d.add(1, y // 4, w_showinfo)
+
+            ep_print = lambda e: f"E{e.number:>02}: {e.title} ({e.first_aired_date})"
+            eps = list(map(ep_print, self.trakt_season.episodes))
+            w_epinfo = WMultiEntry(x // 2 - 2, 3 * y // 4, eps)
+            d.add(1 + x // 2, y // 4, w_epinfo)
+
+            res = d.loop()
+
+        return res == ACTION_OK
+
+
 def select_watched_shows():
     """
     Select the tv shows you've watched (from find_movies)
@@ -312,6 +350,22 @@ def deferred_updates():
         episode_updates(d)
 
 
+def structured_updates():
+    for show_s, season, d in ttp.get_structured():
+        trakt_shows = trakt_utils.search_tv(show_s)
+
+        try:
+            # assume results[0] is correct
+            trakt_season = next(filter(lambda t: t.number == season, trakt_shows[0]["seasons"]))
+
+            s = StructuredUpdate(trakt_shows[0], trakt_season, d)
+            if s.run():
+                episode_updates({e: d for e in trakt_season.episodes})
+        except StopIteration:
+            print(f"No result for season {season} in {trakt_shows[0]} ({len(trakt_shows[0]['seasons'])} seasons)")
+            continue
+
+
 def main():
     trakt_utils.auth_trakt()
 
@@ -340,15 +394,18 @@ def main():
             w_settings = [
                 WButton(47, "Defer updates until all episodes are selected"),
                 WButton(52, "Run trakt API calls after each season is complete"),
-                WButton(39, "Run trakt updates from a previous run")
+                WButton(39, "Run trakt updates from a previous run"),
+                WButton(45, "Run trakt updates from shows-structured.txt"),
             ]
             w_settings[0].finish_dialog = ACTION_OK
             w_settings[1].finish_dialog = ACTION_CANCEL
             w_settings[2].finish_dialog = 1004
+            w_settings[3].finish_dialog = 1005
 
             d.add(get_x(w_settings[0]), y // 2 - 2, w_settings[0])
             d.add(get_x(w_settings[1]), y // 2, w_settings[1])
             d.add(get_x(w_settings[2]), y // 2 + 2, w_settings[2])
+            d.add(get_x(w_settings[3]), y // 2 + 4, w_settings[3])
 
             defer = d.loop()
 
@@ -357,6 +414,8 @@ def main():
     elif res == 2:
         if defer == 1004:
             deferred_updates()
+        elif defer == 1005:
+            structured_updates()
         else:
             update_trakt(defer == ACTION_OK)
 

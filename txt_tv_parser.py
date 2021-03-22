@@ -35,8 +35,14 @@ January
 2. return list of watched tv shows
 requires:
 SELECTED = "shows.txt"
+
+3. run through a structured (name / season number / date finished) list of tv shows
+This is meant for those who may have kept track of the date they finished tv shows before using trakt.
+Format of shows-structured.txt - multiple lines that look like this:
+show ::: season-number ::: YYYY/MM/DD
 """
 
+import datetime as dt
 import re
 import os
 
@@ -45,6 +51,7 @@ from typing import Set
 
 FNAME = "wikipedia-tv-shows.txt"
 SELECTED = "shows.txt"
+STRUCTURED = "shows-structured.txt"
 
 
 def clean_paste(s):
@@ -68,6 +75,21 @@ def serialize(updated: Set[bytes]):
         for show in sorted(current):
             f.write(show)
             f.write("\n")
+
+
+def get_structured():
+    with open(STRUCTURED) as f:
+        for line in f.readlines():
+            if line.strip():
+                try:
+                    show, season_s, date_s = line.strip().split(" ::: ")
+                    season = int(season_s)
+                    d = dt.datetime.strptime(date_s, "%Y/%m/%d")
+                    yield show, season, d
+                except (IndexError, ValueError):
+                    print("misformatted line:")
+                    print("Expecting: 'show ::: season-number ::: YYYY/MM/DD'")
+                    print(line.strip())
 
 
 def get_selected():
