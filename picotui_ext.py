@@ -2,7 +2,7 @@
 Widget extensions to `picotui`
 """
 
-from enum import Enum
+from enum import IntEnum
 from typing import List
 from picotui.widgets import Widget, Dialog
 
@@ -200,7 +200,7 @@ class WPager(ItemSelWidget):
                 return w.handle_mouse(x, y)
 
 
-class EP_WATCHED(Enum):
+class EP_WATCHED(IntEnum):
     SKIP = 0
     AIRED = 1
     DATE = 2
