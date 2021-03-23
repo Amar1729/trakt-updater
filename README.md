@@ -15,7 +15,7 @@ If necessary, you can mark media as being watched multiple times by adding them 
 
 ## trakt
 
-To use the trakt API, you will need an API key and secret.
+To use the trakt API, you will need an API id and secret.
 
 ## movies
 
