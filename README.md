@@ -27,4 +27,16 @@ And the script will search for movies from your input file one-by-one via trakt.
 
 ## tv
 
-<todo>
+TV shows are slightly more complicated. To update trakt with tv shows you have watched:
+
+1. Populate a text file called `shows.txt` with one name of a tv show per line. This can be done by manually typing out tv shows you have watched after referencing tv aggregators like IMDB or TVDB. I filled this file out by copying the list of TV shows by release date [from wikipedia](https://en.wikipedia.org/wiki/List_of_American_television_programs_by_debut_date).
+    1. Select watched TV shows - if you fill out a file named `wikipedia-tv-shows.txt` (with the expected format, see docstring for [`txt_tv_parser.py`](txt_tv_parser.py) for more info), then you can call `python interface.py` to bring up an interface to select the TV shows you have seen. This will output your selected shows to a `shows.txt` file for later ingestion.
+3. Once you have `shows.txt`, you can call `python interface.py` and select `update trakt`. The interface will guide you through selections of tv shows, seasons, and their episodes for each line in `shows.txt`.
+
+Optional:
+If you have been keeping track of tv shows you have watched before creating a trakt account, there is additional functionality for ingesting that information as well. In general, you can fill out a file `shows-structured.txt` with lines like this:
+```
+name of tv show ::: season-number ::: YYYY/MM/DD
+```
+
+Then call `python interface.py` > `update trakt` > `Run trakt updates from shows-structured.txt`. This functionality is meant for quicker updates for a batches of tv shows.
