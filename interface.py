@@ -287,12 +287,12 @@ class StructuredUpdate:
             d.add(10, 4, w_cancel)
 
             sd = list(trakt_utils.display_seasons(self.show["seasons"]))
-            w_showinfo = WMultiEntry(x // 2 - 2, 3 * y // 4, sd)
+            w_showinfo = WMultiEntry(x // 2 - 2, 3 * y // 4 - 1, sd)
             d.add(1, y // 4, w_showinfo)
 
             ep_print = lambda e: f"E{e.number:>02}: {e.title} ({e.first_aired_date})"
             eps = list(map(ep_print, self.trakt_season.episodes))
-            w_epinfo = WMultiEntry(x // 2 - 2, 3 * y // 4, eps)
+            w_epinfo = WMultiEntry(x // 2 - 2, 3 * y // 4 - 1, eps)
             d.add(1 + x // 2, y // 4, w_epinfo)
 
             res = d.loop()
