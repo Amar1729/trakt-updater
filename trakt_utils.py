@@ -313,19 +313,6 @@ def main(media_type):
 
 
 if __name__ == "__main__":
-    try:
-        # media_type: 'show' or 'movie'
-        media_type = sys.argv[1]
-        assert media_type in ["show", "movie"]
-    except IndexError:
-        media_type = "movie"
-        print("using default media_type: movie")
-        print("if you would like to parse tv shows, use `python trakt_utils.py show`")
-        print()
-    except AssertionError:
-        print("usage:")
-        print("  python trakt_utils.py movie")
-        print("  python trakt_utils.py show")
-        sys.exit(1)
-
-    main(media_type)
+    # calling this file is really only meant for movies.
+    # for tv shows as well, see interface.py
+    main("movie")
