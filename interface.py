@@ -337,7 +337,8 @@ def update_trakt(defer):
 
                 if res in [ACTION_OK, 1004, 1005, 1006]:
                     if defer:
-                        trakt_utils.bad_serializer(ep.results)
+                        if ep.results:
+                            trakt_utils.bad_serializer(ep.results)
                     else:
                         try:
                             episode_updates(ep.results)
