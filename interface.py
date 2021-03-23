@@ -214,7 +214,7 @@ class EpisodeSelector:
             d.add(1 + x // 2, 9, w_input_date_nonskip)
             w_input_date_nonskip.finish_dialog = 1006
 
-            w_release_label = WLabel("Each episode watched on release")
+            w_release_label = WLabel("EACH (including skipped) episode watched on release")
             w_release = WButton(12, "On Release")
             d.add(1 + x // 2, 11, w_release_label)
             d.add(1 + x // 2, 12, w_release)
