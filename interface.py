@@ -343,7 +343,7 @@ def update_trakt(defer):
                         try:
                             episode_updates(ep.results)
                         except json.decoder.JSONDecodeError:
-                            print(f"Error updating: {ep.show} - Season {ep.season}")
+                            print(f"Error updating: {s.show_choice['title']} - Season {season.number}")
                             print("You may have to reset progress for this show/season in trakt and redo this season.")
                             print("skipping.")
                             time.sleep(2)
