@@ -2,6 +2,7 @@
 
 import datetime as dt
 from itertools import zip_longest
+import time
 
 # third-party
 import tqdm
@@ -16,6 +17,10 @@ import trakt_utils
 import txt_tv_parser as ttp
 from picotui_ext import WPager, WEpisodeWidget
 from picotui_ext import EP_WATCHED
+
+
+# use a manual offset, since trakt module incorrectly uses utc time instead of local time
+OFFSET = time.timezone
 
 
 def take_filled(iterable, n):
@@ -242,11 +247,15 @@ class EpisodeSelector:
                     self.results[w_ep.ep] = w_ep.ep.first_aired_date
                 elif w_ep.choice == EP_WATCHED.DATE:
                     d = dt.datetime(year=get_dd(0), month=get_dd(1), day=get_dd(2))
+                    # TRAKT module - does not use timezone-aware datetimes
+                    d = d + dt.timedelta(seconds=OFFSET)
                     self.results[w_ep.ep] = d
         elif res in [1005, 1006]:
             for w_ep in w_pager.items:
                 if res == 1006 or w_ep.choice != EP_WATCHED.SKIP:
                     d = dt.datetime(year=get_dd(0), month=get_dd(1), day=get_dd(2))
+                    # TRAKT module - does not use timezone-aware datetimes
+                    d = d + dt.timedelta(seconds=OFFSET)
                     self.results[w_ep.ep] = d
 
         return res
@@ -360,6 +369,8 @@ def structured_updates():
 
             s = StructuredUpdate(trakt_shows[0], trakt_season, d)
             if s.run():
+                # TRAKT module - does not use timezone-aware datetimes
+                d = d + dt.timedelta(seconds=OFFSET)
                 episode_updates({e: d for e in trakt_season.episodes})
         except StopIteration:
             print(f"No result for season {season} in {trakt_shows[0]} ({len(trakt_shows[0]['seasons'])} seasons)")
