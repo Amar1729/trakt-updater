@@ -2,6 +2,7 @@
 
 import datetime as dt
 from itertools import zip_longest
+import json
 import time
 
 # third-party
@@ -338,7 +339,13 @@ def update_trakt(defer):
                     if defer:
                         trakt_utils.bad_serializer(ep.results)
                     else:
-                        episode_updates(ep.results)
+                        try:
+                            episode_updates(ep.results)
+                        except json.decoder.JSONDecodeError:
+                            print(f"Error updating: {ep.show} - Season {ep.season}")
+                            print("You may have to reset progress for this show/season in trakt and redo this season.")
+                            print("skipping.")
+                            time.sleep(2)
                 elif res == ACTION_CANCEL:
                     # skipping this season
                     pass
@@ -354,9 +361,17 @@ def deferred_updates():
     print("This will result in deuplicate plays of episodes if you re-run deferred updates.")
     print("Make sure to delete serialized.pickle after successful updates.")
     for d in trakt_utils.read_serialized():
-        ep = list(d.items())[0][0]
-        print(f"> {ep.show} - Season {ep.season}")
-        episode_updates(d)
+        try:
+            ep = list(d.items())[0][0]
+            print(f"> {ep.show} - Season {ep.season}")
+            try:
+                episode_updates(d)
+            except json.decoder.JSONDecodeError:
+                print(f"Error updating: {ep.show} - Season {ep.season}")
+                print("You may have to reset progress for this show/season in trakt and redo this season.")
+                print("skipping.")
+        except IndexError:
+            pass
 
 
 def structured_updates():
@@ -371,7 +386,13 @@ def structured_updates():
             if s.run():
                 # TRAKT module - does not use timezone-aware datetimes
                 d = d + dt.timedelta(seconds=OFFSET)
-                episode_updates({e: d for e in trakt_season.episodes})
+                try:
+                    episode_updates({e: d for e in trakt_season.episodes})
+                except json.decoder.JSONDecodeError:
+                    print(f"Error updating: {season} - Season {trakt_season.number}")
+                    print("You may have to reset progress for this show/season in trakt and redo this season.")
+                    print("skipping.")
+                    time.sleep(2)
         except StopIteration:
             print(f"No result for season {season} in {trakt_shows[0]} ({len(trakt_shows[0]['seasons'])} seasons)")
             continue
