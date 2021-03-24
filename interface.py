@@ -369,8 +369,7 @@ def deferred_updates():
             print(f"> {ep.show} - Season {ep.season} ({ep.first_aired_date})")
             answer = input("Run update for this show/season?: [Y/n]")
             if answer.strip().lower() == "y" or not answer.strip():
-                # episode_updates(d)
-                print("would have updated season")
+                episode_updates(d)
         except IndexError:
             pass
 
