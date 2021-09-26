@@ -1,5 +1,17 @@
 # trakt updater
 
+Note: current branch is undergoing a rewrite in Rust.
+
+Python files are still in this directory, but rust codebase can be tested with:
+
+```bash
+$ TVDB_TOKEN="<api token here>" cargo run
+```
+
+Currently requires a token from http://themovie.db.org to start up.
+
+----
+
 See [`requirements.txt`](./requirements.txt) before running.
 
 Update trakt.tv with batches of watched movies/tv shows. Typically useful when syncing all your past history into Trakt after first making an account.
