@@ -3,6 +3,7 @@ extern crate serde_derive;
 
 mod cache;
 mod user;
+mod util;
 
 use std::env;
 
@@ -21,8 +22,8 @@ fn main() {
     let mut shows = cache::shows();
     shows.sort_by(|a, b| a.first_air_date.cmp(&b.first_air_date));
 
-    for show in shows {
-        // dbg!(show);
-        user::ask_seen(db_file, &show);
-    }
+    // for show in shows {
+    //     user::ask_seen(db_file, &show);
+    // }
+    user::interface(&db_file, shows).unwrap();
 }
