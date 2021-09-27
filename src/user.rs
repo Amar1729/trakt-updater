@@ -54,15 +54,43 @@ impl UserContext {
         }
     }
 
+    fn get_seen(&self, show_id: i64) -> bool {
+        let mut stmt = self.conn
+            .prepare("SELECT watched FROM user WHERE id = ?")
+            .unwrap();
+
+        stmt.bind(1, show_id).unwrap();
+
+        if let sqlite::State::Row = stmt.next().unwrap() {
+            return stmt.read::<i64>(0).unwrap() == 1;
+        }
+
+        false
+    }
+
     fn mark_seen(&self, show: &Show, watched: bool) {
         let mut stmt = self.conn
-            .prepare("SELECT id FROM user WHERE id = ?")
+            .prepare("SELECT watched FROM user WHERE id = ?")
             .unwrap();
 
         stmt.bind(1, show.id as i64).unwrap();
 
         if let sqlite::State::Row = stmt.next().unwrap() {
-            return;
+            let status = stmt.read::<i64>(0).unwrap() == 1;
+            if status == watched {
+                return;
+            } else {
+                let mut stmt = self.conn
+                    .prepare("UPDATE user SET watched = ? WHERE id = ?")
+                    .unwrap();
+
+                stmt.bind(1, watched as i64).unwrap();
+                stmt.bind(2, show.id as i64).unwrap();
+
+                stmt.next().unwrap();
+
+                return;
+            }
         }
 
         let mut stmt = self.conn
