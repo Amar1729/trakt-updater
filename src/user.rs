@@ -77,14 +77,35 @@ impl UserContext {
 }
 
 struct App {
-    items: StatefulList<Show>,
+    context: UserContext,
+    items: StatefulList<(Show, bool)>,
 }
 
 impl<'a> App {
-    fn new(shows: Vec<Show>) -> App {
+    fn new(context: UserContext, shows: Vec<Show>) -> App {
+        let watched_shows: Vec<(Show, bool)> = shows
+            .iter()
+            // clone is a bit dirty but i dont fully understand rust borrowing + lifetimes yet :/
+            .map(|s| { (s.clone(), context.get_seen(s.id)) })
+            .collect();
+
         App {
-            items: StatefulList::with_items(shows),
+            context: context,
+            items: StatefulList::with_items(
+                watched_shows
+            ),
         }
+    }
+
+    fn toggle_watched(&mut self) {
+        match self.items.state.selected() {
+            Some(i) => {
+                let new_status = !(&self.items.items[i].1);
+                self.context.mark_seen(&self.items.items[i].0, new_status);
+                self.items.items[i] = (self.items.items[i].0.clone(), new_status);
+            }
+            None => {},
+        };
     }
 }
 
@@ -101,7 +122,7 @@ pub fn interface(db: &str, shows: Vec<Show>) -> Result<(), Box<dyn std::error::E
     let tick_rate = Duration::from_millis(200);
     let events = Events::new(tick_rate);
 
-    let mut app = App::new(shows);
+    let mut app = App::new(context, shows);
 
     loop {
         terminal.draw(|rect| {
@@ -124,14 +145,15 @@ pub fn interface(db: &str, shows: Vec<Show>) -> Result<(), Box<dyn std::error::E
                 .map(|i| {
                     ListItem::new(
                         Spans::from(vec![
-                            Span::raw(&i.original_name),
+                            if i.1 { Span::raw("-> ") } else { Span::raw("") },
+                            Span::raw(&i.0.name),
                             Span::raw(" - "),
                             Span::styled(
-                                format!("{} seasons", i.seasons),
+                                format!("{} seasons", i.0.seasons),
                                 Style::default().add_modifier(Modifier::ITALIC),
                             ),
                             Span::raw(" - "),
-                            Span::raw(format!("{}", i.first_air_date)),
+                            Span::raw(format!("{}", i.0.first_air_date.date())),
                         ])
                     )
                         .style(Style::default().fg(Color::White))
@@ -163,6 +185,9 @@ pub fn interface(db: &str, shows: Vec<Show>) -> Result<(), Box<dyn std::error::E
                 }
                 Key::Up => {
                     app.items.previous()
+                }
+                Key::Char(' ') => {
+                    app.toggle_watched()
                 }
                 _ => {}
             }

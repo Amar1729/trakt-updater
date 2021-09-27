@@ -27,7 +27,7 @@ struct Tvdb {
     first_air_date: i64,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Show {
     pub id: i64,
     pub name: String,
