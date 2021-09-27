@@ -139,7 +139,7 @@ impl<'a> App {
 
 /// tui for marking shows as seen
 pub fn interface(db: &str, shows: Vec<Show>) -> Result<(), Box<dyn std::error::Error>> {
-    let mut context = UserContext::new(db);
+    let context = UserContext::new(db);
 
     let stdout = io::stdout().into_raw_mode()?;
     let stdout = MouseTerminal::from(stdout);
@@ -151,6 +151,8 @@ pub fn interface(db: &str, shows: Vec<Show>) -> Result<(), Box<dyn std::error::E
     let events = Events::new(tick_rate);
 
     let mut app = App::new(context, shows);
+    // start with first show selected
+    app.items.next();
 
     loop {
         terminal.draw(|rect| {
